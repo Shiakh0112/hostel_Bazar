@@ -1,0 +1,241 @@
+[
+  {
+    "name": "Sunrise Boys Hostel",
+    "description": "A secure and affordable hostel for students and working professionals located near the city center. Provides homely food and strict security.",
+    "owner": "65e4a8b7123456789abcdef0",
+    "address": {
+      "street": "45, Nehru Nagar",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "pincode": "411045",
+      "area": "Koregaon Park"
+    },
+    "hostelType": "boys",
+    "structure": {
+      "totalFloors": 3,
+      "roomsPerFloor": 4,
+      "bedsPerRoom": 3,
+      "roomType": "triple",
+      "attachedBathroom": true
+    },
+    "amenities": [
+      "Free Wi-Fi",
+      "Hot Water",
+      "Laundry Service",
+      "24/7 Security",
+      "CCTV Surveillance",
+      "Refrigerator"
+    ],
+    "rules": [
+      "No non-veg allowed inside rooms",
+      "Guest entry allowed only till 9 PM",
+      "Alcohol and smoking strictly prohibited",
+      "Silence hours after 10 PM"
+    ],
+    "mainImage": "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1000&auto=format&fit=crop",
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?q=80&w=1000&auto=format&fit=crop",
+        "type": "building"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=1000&auto=format&fit=crop",
+        "type": "room"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1584622050111-993a426fbf0a?q=80&w=1000&auto=format&fit=crop",
+        "type": "bathroom"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1556910103-1c02745a30bf?q=80&w=1000&auto=format&fit=crop",
+        "type": "mess"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=1000&auto=format&fit=crop",
+        "type": "common"
+      }
+    ],
+    "pricing": {
+      "monthlyRent": 8500,
+      "advancePayment": 15000,
+      "maintenanceCharges": 500,
+      "electricityCharges": 800
+    },
+    "contact": {
+      "phone": "+919876543210",
+      "email": "sunrise@example.com",
+      "whatsapp": "+919876543210"
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [73.8777, 18.5404]
+    },
+    "rating": {
+      "average": 4.2,
+      "count": 45
+    },
+    "isActive": true,
+    "isApproved": true,
+    "lateFeeSettings": {
+      "enabled": true,
+      "type": "fixed",
+      "amount": 100,
+      "gracePeriod": 5
+    }
+  },
+  {
+    "name": "Lotus Girls PG & Hostel",
+    "description": "Premium living space for women with modern amenities. Highly safe environment with female staff. Close to IT park and metro station.",
+    "owner": "65e4a8b7123456789abcdef1",
+    "address": {
+      "street": "12, 2nd Main Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "pincode": "560034",
+      "area": "HSR Layout"
+    },
+    "hostelType": "girls",
+    "structure": {
+      "totalFloors": 2,
+      "roomsPerFloor": 3,
+      "bedsPerRoom": 2,
+      "roomType": "double",
+      "attachedBathroom": true
+    },
+    "amenities": [
+      "AC Rooms",
+      "Geyser",
+      "Wardrobe",
+      "Study Table",
+      "Housekeeping",
+      "Pure Veg Mess"
+    ],
+    "rules": [
+      "Male visitors not allowed beyond reception",
+      "ID card mandatory for entry",
+      "No late night outings"
+    ],
+    "mainImage": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1000&auto=format&fit=crop",
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1000&auto=format&fit=crop",
+        "type": "building"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1000&auto=format&fit=crop",
+        "type": "room"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1620626012051-5d24e60949e6?q=80&w=1000&auto=format&fit=crop",
+        "type": "bathroom"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1514362545857-3bc16549766b?q=80&w=1000&auto=format&fit=crop",
+        "type": "common"
+      }
+    ],
+    "pricing": {
+      "monthlyRent": 12000,
+      "advancePayment": 20000,
+      "maintenanceCharges": 1000,
+      "electricityCharges": 1200
+    },
+    "contact": {
+      "phone": "+919876543211",
+      "email": "lotuspg@example.com",
+      "whatsapp": "+919876543211"
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [77.6328, 12.91]
+    },
+    "rating": {
+      "average": 4.8,
+      "count": 120
+    },
+    "isActive": true,
+    "isApproved": true,
+    "lateFeeSettings": {
+      "enabled": false
+    }
+  },
+  {
+    "name": "Urban Nest Co-Living",
+    "description": "A vibrant co-living space for digital nomads and students. Enjoy community events, high-speed internet, and a fully equipped kitchen.",
+    "owner": "65e4a8b7123456789abcdef2",
+    "address": {
+      "street": "Sector 45, Pocket B",
+      "city": "Gurugram",
+      "state": "Haryana",
+      "pincode": "122003",
+      "area": "Sohna Road"
+    },
+    "hostelType": "co-ed",
+    "structure": {
+      "totalFloors": 4,
+      "roomsPerFloor": 5,
+      "bedsPerRoom": 1,
+      "roomType": "single",
+      "attachedBathroom": true
+    },
+    "amenities": [
+      "High-Speed Fiber Internet",
+      "Gaming Zone",
+      "Shared Kitchen",
+      "Gym",
+      "Terrace Garden",
+      "Weekly Cleaning"
+    ],
+    "rules": [
+      "Respect fellow residents",
+      "No parties inside rooms",
+      "Dispose trash properly"
+    ],
+    "mainImage": "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=1000&auto=format&fit=crop",
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=1000&auto=format&fit=crop",
+        "type": "building"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1590490360182-f33fb0d6d7f3?q=80&w=1000&auto=format&fit=crop",
+        "type": "room"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1556910103-1c02745a30bf?q=80&w=1000&auto=format&fit=crop",
+        "type": "kitchen"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=1000&auto=format&fit=crop",
+        "type": "common"
+      }
+    ],
+    "pricing": {
+      "monthlyRent": 15000,
+      "advancePayment": 25000,
+      "maintenanceCharges": 1500,
+      "electricityCharges": 1500
+    },
+    "contact": {
+      "phone": "+919876543212",
+      "email": "urbannest@example.com",
+      "whatsapp": "+919876543212"
+    },
+    "location": {
+      "type": "Point",
+      "coordinates": [77.0266, 28.4122]
+    },
+    "rating": {
+      "average": 4.5,
+      "count": 85
+    },
+    "isActive": true,
+    "isApproved": true,
+    "lateFeeSettings": {
+      "enabled": true,
+      "type": "percentage",
+      "percentage": 10,
+      "gracePeriod": 3
+    }
+  }
+]
