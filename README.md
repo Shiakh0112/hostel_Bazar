@@ -2,6 +2,11 @@
 
 A modern, full-stack hostel management system built with **React.js**, **Node.js**, **Express.js**, and **MongoDB**. Features a beautiful glass morphism UI design with comprehensive management capabilities for hostels, students, payments, and more.
 
+## 🚀 Live Demo
+
+- **Frontend**: https://hostel-bazar.vercel.app
+- **Backend API**: https://hostel-bazar.onrender.com/api
+
 ## 🌟 Features
 
 ### 👥 **Multi-Role Authentication System**
@@ -178,7 +183,7 @@ npm install
 
 Create `.env` file in frontend directory:
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=https://hostel-bazar.onrender.com/api
 VITE_RAZORPAY_KEY_ID=your-razorpay-key
 VITE_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 ```
@@ -189,8 +194,9 @@ npm run dev
 ```
 
 ### **4. Access Application**
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:5000/api
+- **Live Demo**: https://hostel-bazar.vercel.app
+- **Local Frontend**: http://localhost:5173
+- **Local Backend API**: http://localhost:5000/api
 
 ## 📱 Usage Guide
 
