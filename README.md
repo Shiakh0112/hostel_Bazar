@@ -7,6 +7,67 @@ A modern, full-stack hostel management system built with **React.js**, **Node.js
 - **Frontend**: https://hostel-bazar.vercel.app
 - **Backend API**: https://hostel-bazar.onrender.com/api
 
+## 🔐 Test User Credentials
+
+Use these credentials to test different user roles:
+
+### **👨‍💼 Hostel Owner Account**
+```
+Email: owner@hostelbazar.com
+Password: Owner@123
+```
+**Access:** Create hostels, manage rooms, view payments, generate reports, manage staff
+
+### **👨‍🎓 Student Account**
+```
+Email: student@hostelbazar.com
+Password: Student@123
+```
+**Access:** Browse hostels, book rooms, make payments, view payment history, request maintenance
+
+### **👨‍💼 Staff Account**
+```
+Email: staff@hostelbazar.com
+Password: Staff@123
+Staff ID: STAFF001
+```
+**Access:** Handle daily operations, process maintenance requests, assist students
+
+### **🧪 Test Payment Cards**
+
+**For Razorpay Testing:**
+```
+Card Number: 4111 1111 1111 1111
+Expiry: Any future date (e.g., 12/25)
+CVV: Any 3 digits (e.g., 123)
+Name: Any name
+```
+
+**For Stripe Testing:**
+```
+Card Number: 4242 4242 4242 4242
+Expiry: Any future date (e.g., 12/25)
+CVV: Any 3 digits (e.g., 123)
+Name: Any name
+Email: Any valid email
+```
+
+**For Fake Card Testing (Development):**
+```
+Card Number: 1234 5678 9012 3456
+Expiry: 12/25
+CVV: 123
+Name: Test User
+```
+
+### **📝 Important Notes:**
+- All test accounts are pre-configured with sample data
+- Owner account has 2-3 sample hostels with rooms
+- Student account has active bookings and payment history
+- Staff account is linked to sample hostels
+- Use test payment cards for making payments
+- OTP verification is bypassed for test accounts
+
 ## 🌟 Features
 
 ### 👥 **Multi-Role Authentication System**
