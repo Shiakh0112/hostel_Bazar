@@ -6,8 +6,8 @@ A modern, full-stack hostel management system built with **React.js**, **Node.js
 
 - **Frontend**: https://hostel-bazar.vercel.app
 - **Backend API**: https://hostel-bazar.onrender.com/api
-- **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar.git
-
+- **GitHub clone**: https://github.com/Shiakh0112/hostel_Bazar.git
+- **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar/edit/main
 ---
 
 ## 📊 Complete API Documentation
