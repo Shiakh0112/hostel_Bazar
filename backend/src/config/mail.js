@@ -1,29 +1,36 @@
 const nodemailer = require("nodemailer");
 
-// Create transporter without immediate verification
 const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT) || 587,
-    secure: false,
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log('⚠️ Email credentials not configured');
+    return null;
+  }
+
+  return nodemailer.createTransporter({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false
     }
   });
 };
 
-// Export a function that creates transporter when needed
 module.exports = {
   sendMail: async (mailOptions) => {
     try {
       const transporter = createTransporter();
-      return await transporter.sendMail(mailOptions);
+      if (!transporter) {
+        console.log('Email service not available');
+        return null;
+      }
+      const info = await transporter.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', info.messageId);
+      return info;
     } catch (error) {
-      console.log('Email send error:', error.message);
+      console.error('❌ Email send failed:', error.message);
       throw error;
     }
   }
