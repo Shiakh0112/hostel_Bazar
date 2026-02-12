@@ -1,32 +1,35 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require('resend');
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // IMPORTANT
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
+}
 
 module.exports = {
   sendMail: async (mailOptions) => {
     try {
-      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.log("⚠️ Email credentials not configured");
+      if (!resend) {
+        console.log('⚠️ Resend API key not configured');
         return null;
       }
 
-      const info = await transporter.sendMail(mailOptions);
-      console.log("✅ Email sent successfully:", info.messageId);
-      return info;
+      const { data, error } = await resend.emails.send({
+        from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+      });
+
+      if (error) {
+        console.error('❌ Email send failed:', error);
+        throw error;
+      }
+
+      console.log('✅ Email sent successfully:', data.id);
+      return data;
     } catch (error) {
-      console.error("❌ Email send failed:", error.message);
-      return null; // Don't crash app
+      console.error('❌ Email send error:', error.message);
+      throw error;
     }
-  },
+  }
 };
