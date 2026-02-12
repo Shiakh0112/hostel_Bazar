@@ -2,20 +2,26 @@ const mailConfig = require('../config/mail');
 
 class EmailService {
   static async sendEmail({ to, subject, html }) {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to,
-      subject,
-      html
-    };
-    return await mailConfig.sendMail(mailOptions);
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to,
+        subject,
+        html
+      };
+      return await mailConfig.sendMail(mailOptions);
+    } catch (error) {
+      console.log('Email send error (non-critical):', error.message);
+      return null;
+    }
   }
   static async sendOTP(email, otp, name) {
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Verify Your Account - Hostel Management System',
-      html: `
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Verify Your Account - Hostel Management System',
+        html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333;">Welcome to Hostel Management System!</h2>
           <p>Hi ${name},</p>
@@ -31,9 +37,12 @@ class EmailService {
           </p>
         </div>
       `
-    };
-
-    return await mailConfig.sendMail(mailOptions);
+      };
+      return await mailConfig.sendMail(mailOptions);
+    } catch (error) {
+      console.log('OTP email send error (non-critical):', error.message);
+      return null;
+    }
   }
 
   static async sendPasswordResetOTP(email, otp, name) {
