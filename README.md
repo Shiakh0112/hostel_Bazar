@@ -7,9 +7,6 @@ A modern, full-stack hostel management system built with **React.js**, **Node.js
 - **Frontend**: https://hostel-bazar.vercel.app
 - **Backend API**: https://hostel-bazar.onrender.com/api
 <<<<<<< HEAD
-- **GitHub clone**: https://github.com/Shiakh0112/hostel_Bazar.git
-- **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar/edit/main
-=======
 - **API Health Check**: https://hostel-bazar.onrender.com/api/test
 - **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar.git
 
@@ -21,7 +18,10 @@ A modern, full-stack hostel management system built with **React.js**, **Node.js
 ❗ All test credentials are working and verified
 ```
 
->>>>>>> 0133161 (GUVI Assignment 9 hostelmangement system complated and update deploye links update)
+=======
+- **GitHub clone**: https://github.com/Shiakh0112/hostel_Bazar.git
+- **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar/edit/main
+>>>>>>> 8f973428e1487ee8a1434230b76f48a769e568a5
 ---
 
 ## 📊 Complete API Documentation
@@ -1183,110 +1183,3 @@ npm run dev
 ---
 
 ⭐ **Star this repository if you found it helpful!**
-
-
----
-
-## 🔐 Authentication Testing Guide
-
-### Quick Test Commands
-
-**Test API Health:**
-```bash
-curl https://hostel-bazar.onrender.com/api/test
-```
-
-**Test Owner Login:**
-```bash
-curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"owner@hostelbazar.com","password":"Owner@123"}'
-```
-
-**Test Student Login:**
-```bash
-curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"student@hostelbazar.com","password":"Student@123"}'
-```
-
-**Test Staff Login:**
-```bash
-curl -X POST https://hostel-bazar.onrender.com/api/auth/staff-login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"staff@hostelbazar.com","password":"Staff@123","staffId":"STAFF001"}'
-```
-
-### Automated Testing
-
-**Windows:**
-```bash
-test-auth.bat
-```
-
-**Linux/Mac:**
-```bash
-chmod +x test-auth.sh
-./test-auth.sh
-```
-
-### Common Authentication Issues
-
-#### Issue: 401 Unauthorized
-**Causes:**
-1. Backend is sleeping (Render free tier)
-2. Wrong credentials
-3. Account not verified
-4. Rate limiting
-
-**Solutions:**
-1. Wait 60 seconds for backend to wake up
-2. Verify credentials are correct
-3. Use pre-configured test accounts
-4. Test with curl commands above
-
-#### Issue: OTP Not Received
-**Solutions:**
-1. Check spam folder
-2. Wait 2-3 minutes
-3. Use resend OTP option
-4. Verify email service is configured
-
-#### Issue: Forgot Password Not Working
-**Solutions:**
-1. Check email for OTP
-2. OTP valid for 10 minutes only
-3. Use correct userId from response
-4. Test with curl command
-
-### Expected Responses
-
-**Successful Login:**
-```json
-{
-  "success": true,
-  "statusCode": 200,
-  "data": {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-      "id": "...",
-      "name": "Owner Name",
-      "email": "owner@hostelbazar.com",
-      "role": "owner"
-    }
-  },
-  "message": "Login successful"
-}
-```
-
-**Failed Login:**
-```json
-{
-  "success": false,
-  "statusCode": 401,
-  "data": null,
-  "message": "Invalid credentials"
-}
-```
-
----
