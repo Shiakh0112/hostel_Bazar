@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './ProtectedRoute'
 import RoleRoute from './RoleRoute'
 
@@ -15,6 +15,7 @@ import Signup from '../pages/Signup'
 import VerifyOTP from '../pages/VerifyOTP'
 import ForgotPassword from '../pages/ForgotPassword'
 import ResetPassword from '../pages/ResetPassword'
+import NotFound from '../pages/NotFound'
 
 // Dashboard Layouts
 import OwnerLayout from '../components/dashboard/owner/OwnerLayout'
@@ -154,7 +155,7 @@ const AppRoutes = () => {
       </Route>
 
       {/* Fallback Route */}
-      <Route path="*" element={<div className="p-8 text-center">Page Not Found</div>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }
