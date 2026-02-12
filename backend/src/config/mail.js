@@ -1,29 +1,21 @@
 const nodemailer = require('nodemailer');
 
-const createTransporter = () => {
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('⚠️ Email credentials not configured');
-    return null;
+const transporter = nodemailer.createTransporter({
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   }
-
-  return nodemailer.createTransporter({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    }
-  });
-};
+});
 
 module.exports = {
   sendMail: async (mailOptions) => {
     try {
-      const transporter = createTransporter();
-      if (!transporter) {
-        console.log('Email service not available');
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.log('⚠️ Email credentials not configured');
         return null;
       }
       const info = await transporter.sendMail(mailOptions);
