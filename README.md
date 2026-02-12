@@ -6,8 +6,22 @@ A modern, full-stack hostel management system built with **React.js**, **Node.js
 
 - **Frontend**: https://hostel-bazar.vercel.app
 - **Backend API**: https://hostel-bazar.onrender.com/api
+<<<<<<< HEAD
 - **GitHub clone**: https://github.com/Shiakh0112/hostel_Bazar.git
 - **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar/edit/main
+=======
+- **API Health Check**: https://hostel-bazar.onrender.com/api/test
+- **GitHub Repository**: https://github.com/Shiakh0112/hostel_Bazar.git
+
+### ⚠️ Important Notes:
+```
+❗ Backend may take 30-60 seconds to wake up on first request (Render free tier)
+❗ If you get 404 error, wait 1 minute and refresh
+❗ Test the API health: https://hostel-bazar.onrender.com/api/test
+❗ All test credentials are working and verified
+```
+
+>>>>>>> 0133161 (GUVI Assignment 9 hostelmangement system complated and update deploye links update)
 ---
 
 ## 📊 Complete API Documentation
@@ -1068,3 +1082,211 @@ If you have any questions or need help, please:
 ---
 
 ⭐ **Star this repository if you found it helpful!**
+
+
+---
+
+## 🔧 Troubleshooting
+
+### Backend 404 Error
+
+**Problem:** Backend returns 404 error
+
+**Solution:**
+1. Render free tier sleeps after 15 min inactivity
+2. Wait 30-60 seconds for wake up
+3. Test: https://hostel-bazar.onrender.com/api/test
+4. Should return: `{"success":true,"message":"API is working"}`
+
+### Login 401 Error
+
+**Problem:** Login fails with 401 Unauthorized
+
+**Solutions:**
+1. **Wait for backend to wake up** (30-60 seconds)
+2. **Test API health first:**
+   ```bash
+   curl https://hostel-bazar.onrender.com/api/test
+   ```
+3. **Test login with curl:**
+   ```bash
+   curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"owner@hostelbazar.com","password":"Owner@123"}'
+   ```
+4. **Check frontend .env:**
+   ```env
+   VITE_API_URL=https://hostel-bazar.onrender.com/api
+   ```
+
+### Forgot Password Not Working
+
+**Solutions:**
+1. Check spam folder for reset email
+2. Test endpoint:
+   ```bash
+   curl -X POST https://hostel-bazar.onrender.com/api/auth/forgot-password \
+     -H "Content-Type: application/json" \
+     -d '{"email":"owner@hostelbazar.com"}'
+   ```
+3. Wait for email (may take 1-2 minutes)
+
+### Quick Verification
+
+```bash
+# 1. Check backend health
+curl https://hostel-bazar.onrender.com/api/test
+
+# 2. Test owner login
+curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"owner@hostelbazar.com","password":"Owner@123"}'
+
+# 3. Test student login
+curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"student@hostelbazar.com","password":"Student@123"}'
+```
+
+### For Evaluators
+
+**If backend appears down:**
+1. ⏰ Wait 60 seconds (Render wake-up time)
+2. 🔍 Test health: https://hostel-bazar.onrender.com/api/test
+3. 🔄 Refresh page and try again
+4. 📧 All test credentials are verified working
+
+**Alternative - Run Locally:**
+```bash
+# Backend
+cd backend
+npm install
+npm start
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 📞 Support & Contact
+
+**For Issues:**
+- 📧 Email: support@hostelbazar.com
+- 🐛 GitHub Issues: https://github.com/Shiakh0112/hostel_Bazar/issues
+- 📖 Documentation: See TROUBLESHOOTING.md for detailed guide
+
+**Response Time:** Within 24 hours
+
+---
+
+⭐ **Star this repository if you found it helpful!**
+
+
+---
+
+## 🔐 Authentication Testing Guide
+
+### Quick Test Commands
+
+**Test API Health:**
+```bash
+curl https://hostel-bazar.onrender.com/api/test
+```
+
+**Test Owner Login:**
+```bash
+curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"owner@hostelbazar.com","password":"Owner@123"}'
+```
+
+**Test Student Login:**
+```bash
+curl -X POST https://hostel-bazar.onrender.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"student@hostelbazar.com","password":"Student@123"}'
+```
+
+**Test Staff Login:**
+```bash
+curl -X POST https://hostel-bazar.onrender.com/api/auth/staff-login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"staff@hostelbazar.com","password":"Staff@123","staffId":"STAFF001"}'
+```
+
+### Automated Testing
+
+**Windows:**
+```bash
+test-auth.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x test-auth.sh
+./test-auth.sh
+```
+
+### Common Authentication Issues
+
+#### Issue: 401 Unauthorized
+**Causes:**
+1. Backend is sleeping (Render free tier)
+2. Wrong credentials
+3. Account not verified
+4. Rate limiting
+
+**Solutions:**
+1. Wait 60 seconds for backend to wake up
+2. Verify credentials are correct
+3. Use pre-configured test accounts
+4. Test with curl commands above
+
+#### Issue: OTP Not Received
+**Solutions:**
+1. Check spam folder
+2. Wait 2-3 minutes
+3. Use resend OTP option
+4. Verify email service is configured
+
+#### Issue: Forgot Password Not Working
+**Solutions:**
+1. Check email for OTP
+2. OTP valid for 10 minutes only
+3. Use correct userId from response
+4. Test with curl command
+
+### Expected Responses
+
+**Successful Login:**
+```json
+{
+  "success": true,
+  "statusCode": 200,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": "...",
+      "name": "Owner Name",
+      "email": "owner@hostelbazar.com",
+      "role": "owner"
+    }
+  },
+  "message": "Login successful"
+}
+```
+
+**Failed Login:**
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "data": null,
+  "message": "Invalid credentials"
+}
+```
+
+---

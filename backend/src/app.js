@@ -35,10 +35,10 @@ const corsOptions = {
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'development' ? 1000 : 100,
+  max: 1000, // Increased limit
   skip: (req) => {
-    // Skip rate limiting for auth routes in development
-    return process.env.NODE_ENV === 'development' && req.path.startsWith('/api/auth');
+    // Skip rate limiting for auth routes
+    return req.path.startsWith('/api/auth') || req.path.startsWith('/api/test');
   }
 });
 
