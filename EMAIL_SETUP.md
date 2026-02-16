@@ -1,6 +1,88 @@
 # 📧 Email OTP Setup Guide
 
-## Gmail App Password Setup
+## ⚡ Resend Email Service (Recommended for Production)
+
+### Current Status
+- **Service:** Resend
+- **API Key:** Configured ✅
+- **Domain:** hostel-bazar.vercel (Pending DNS Verification)
+- **Status:** Using sandbox mode until domain verified
+
+### Step 1: Complete Domain Verification
+
+1. **Wait for DNS Propagation** (This can take a few minutes to 48 hours)
+   - Your DNS records are being verified by Resend
+   - Check status at: https://resend.com/domains
+
+2. **Required DNS Records** (Already added, waiting for propagation):
+   ```
+   Type: TXT
+   Name: resend._domainkey
+   Value: p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDdsRVQOxzNadpxIx4JYxcayYPVUp6n2RihM3zWbCbkAmvesfsZ1qf20R8I+FZReW15gRoAHxG42EQHWqOKc5XttzQkweFWXTh2HKUb+32u7bKMgaQa4RL1JWaX5m6MprG1j7VH/jF3pvAAewnuV3TB1Up/GNqoadi9Eirdyel+QQIDAQAB
+   
+   Type: MX
+   Name: send
+   Value: feedback-smtp.ap-northeast-1.amazonses.com
+   Priority: 10
+   
+   Type: TXT
+   Name: send
+   Value: v=spf1 include:amazonses.com ~all
+   ```
+
+3. **Update Email From Address (After Verification)**
+   - Once domain is verified, update `.env`:
+   ```env
+   EMAIL_FROM=noreply@hostel-bazar.vercel.app
+   # or
+   EMAIL_FROM=support@hostel-bazar.vercel.app
+   ```
+
+### Step 2: Current Configuration
+
+**Backend .env (Updated):**
+```env
+USE_RESEND=true
+RESEND_API_KEY=re_CQfS9vXG_9AYc8KLphcdPWUQuzr47gUSj
+EMAIL_FROM=onboarding@resend.dev
+```
+
+### Step 3: Update Render Environment Variables
+
+**IMPORTANT:** Add these to your Render dashboard:
+1. Go to: https://dashboard.render.com
+2. Select your backend service
+3. Go to "Environment" tab
+4. Add/Update:
+   ```
+   USE_RESEND=true
+   RESEND_API_KEY=re_CQfS9vXG_9AYc8KLphcdPWUQuzr47gUSj
+   EMAIL_FROM=onboarding@resend.dev
+   ```
+5. Click "Save Changes"
+6. Render will automatically redeploy
+
+### ⚠️ Important Notes
+
+**Sandbox Mode Limitation:**
+- Until domain is verified, Resend only sends emails to verified addresses
+- Currently, only emails to `shaikhhostel0112@gmail.com` (your Resend account email) will work
+- After domain verification, you can send to ANY email address
+
+**Testing Before Domain Verification:**
+1. Add test email addresses in Resend dashboard
+2. Go to: https://resend.com/settings/emails
+3. Add and verify test email addresses
+4. These verified emails will also receive OTPs
+
+**After Domain Verification:**
+- All email addresses will receive OTPs
+- Update `EMAIL_FROM` to use your domain
+- Better deliverability and branding
+
+---
+
+## Gmail App Password Setup (Legacy/Backup)
 
 ### Step 1: Enable 2-Factor Authentication
 1. Go to: https://myaccount.google.com/security

@@ -1,35 +1,36 @@
-const { Resend } = require('resend');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
-let resend = null;
-if (process.env.RESEND_API_KEY) {
-  resend = new Resend(process.env.RESEND_API_KEY);
+const client = SibApiV3Sdk.ApiClient.instance;
+
+if (!process.env.BREVO_API_KEY) {
+  console.log("❌ BREVO_API_KEY missing in environment variables");
 }
 
-module.exports = {
-  sendMail: async (mailOptions) => {
-    try {
-      if (!resend) {
-        console.log('⚠️ Resend API key not configured');
-        return null;
-      }
+client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
 
-      const { data, error } = await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
-        to: mailOptions.to,
-        subject: mailOptions.subject,
-        html: mailOptions.html,
+const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+
+module.exports = {
+  sendMail: async ({ to, subject, html }) => {
+    try {
+      const response = await emailApi.sendTransacEmail({
+        sender: {
+          name: "Hostel Management System",
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
       });
 
-      if (error) {
-        console.error('❌ Email send failed:', error);
-        throw error;
-      }
-
-      console.log('✅ Email sent successfully:', data.id);
-      return data;
+      console.log("✅ Email sent via Brevo");
+      return response;
     } catch (error) {
-      console.error('❌ Email send error:', error.message);
+      console.error(
+        "❌ Brevo Email Error:",
+        error.response?.body || error.message
+      );
       throw error;
     }
-  }
+  },
 };
