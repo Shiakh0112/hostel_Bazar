@@ -35,12 +35,9 @@ export const signup = createAsyncThunk(
   'auth/signup',
   async (userData, { rejectWithValue }) => {
     try {
-      console.log('Signup request:', userData)
       const response = await authService.signup(userData)
-      console.log('Signup response:', response.data)
-      return response.data.data !== undefined ? response.data.data : response.data
+      return response.data?.data || response.data
     } catch (error) {
-      console.error('Signup error:', error)
       const message = error.response?.data?.message || 'Signup failed'
       toast.error(message)
       return rejectWithValue(message)
@@ -53,7 +50,7 @@ export const verifyOTP = createAsyncThunk(
   async (otpData, { rejectWithValue }) => {
     try {
       const response = await authService.verifyOTP(otpData)
-      const responseData = response.data.data !== undefined ? response.data.data : response.data
+      const responseData = response.data?.data || response.data
       localStorage.setItem('token', responseData.token)
       toast.success('Account verified successfully!')
       return responseData
@@ -70,7 +67,7 @@ export const login = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authService.login(credentials)
-      const responseData = response.data.data !== undefined ? response.data.data : response.data
+      const responseData = response.data?.data || response.data
       localStorage.setItem('token', responseData.token)
       toast.success('Login successful!')
       return responseData
@@ -87,7 +84,7 @@ export const staffLogin = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authService.staffLogin(credentials)
-      const responseData = response.data.data !== undefined ? response.data.data : response.data
+      const responseData = response.data?.data || response.data
       localStorage.setItem('token', responseData.token)
       toast.success('Staff login successful!')
       return responseData
@@ -105,7 +102,7 @@ export const forgotPassword = createAsyncThunk(
     try {
       const response = await authService.forgotPassword(emailData.email);
       toast.success('Password reset OTP sent to your email!');
-      return response.data.data || response.data;
+      return response.data?.data || response.data;
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to send reset email'
       toast.error(message)
@@ -120,7 +117,7 @@ export const resetPassword = createAsyncThunk(
     try {
       const response = await authService.resetPassword(resetData)
       toast.success('Password reset successful!')
-      return response.data.data !== undefined ? response.data.data : response.data
+      return response.data?.data || response.data
     } catch (error) {
       const message = error.response?.data?.message || 'Password reset failed'
       toast.error(message)
@@ -134,7 +131,7 @@ export const checkAuth = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await authService.getProfile()
-      return response.data.data !== undefined ? response.data.data : response.data
+      return response.data?.data || response.data
     } catch (error) {
       localStorage.removeItem('token')
       return rejectWithValue('Authentication failed')
@@ -148,7 +145,7 @@ export const updateProfile = createAsyncThunk(
     try {
       const response = await authService.updateProfile(profileData)
       toast.success('Profile updated successfully!')
-      return response.data.data !== undefined ? response.data.data : response.data
+      return response.data?.data || response.data
     } catch (error) {
       const message = error.response?.data?.message || 'Profile update failed'
       toast.error(message)
@@ -204,11 +201,9 @@ const authSlice = createSlice({
         state.error = null
       })
       .addCase(signup.fulfilled, (state, action) => {
-        console.log('Signup fulfilled:', action.payload)
         state.isLoading = false
         state.signupStep = 'otp'
-        state.tempUserId = action.payload.userId
-        console.log('Updated state:', { signupStep: state.signupStep, tempUserId: state.tempUserId })
+        state.tempUserId = action.payload?.userId
       })
       .addCase(signup.rejected, (state, action) => {
         state.isLoading = false
@@ -222,8 +217,8 @@ const authSlice = createSlice({
       })
       .addCase(verifyOTP.fulfilled, (state, action) => {
         state.isLoading = false
-        state.user = action.payload.user
-        state.token = action.payload.token
+        state.user = action.payload?.user
+        state.token = action.payload?.token
         state.isAuthenticated = true
         state.signupStep = 'complete'
         state.tempUserId = null
@@ -240,8 +235,8 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false
-        state.user = action.payload.user
-        state.token = action.payload.token
+        state.user = action.payload?.user
+        state.token = action.payload?.token
         state.isAuthenticated = true
       })
       .addCase(login.rejected, (state, action) => {
@@ -256,8 +251,8 @@ const authSlice = createSlice({
       })
       .addCase(staffLogin.fulfilled, (state, action) => {
         state.isLoading = false
-        state.user = action.payload.user
-        state.token = action.payload.token
+        state.user = action.payload?.user
+        state.token = action.payload?.token
         state.isAuthenticated = true
       })
       .addCase(staffLogin.rejected, (state, action) => {
@@ -272,7 +267,7 @@ const authSlice = createSlice({
       })
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.isLoading = false
-        state.resetUserId = action.payload.userId
+        state.resetUserId = action.payload?.userId
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.isLoading = false

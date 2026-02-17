@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   ResponsiveContainer,
@@ -11,8 +11,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Bar,
-  BarChart,
 } from "recharts";
 import {
   Building,
@@ -24,11 +22,17 @@ import {
   Wrench,
   MapPin,
   Star,
-  CreditCard,
+  AlertCircle,
 } from "lucide-react";
 import { fetchOwnerDashboard } from "../../../app/slices/reportSlice";
 import { formatPrice } from "../../../utils/priceFormatter";
 import Loader from "../../common/Loader";
+
+// Month names mapping
+const MONTH_NAMES = {
+  1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+  7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+};
 
 // --- ANIMATED BACKGROUND COMPONENT ---
 const BackgroundBlobs = () => (
@@ -72,24 +76,67 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-// --- COLORS ---
+// --- COLORS (Using Tailwind theme colors) ---
 const COLORS = {
-  primary: "#3b82f6", // blue-500
-  success: "#10b981", // green-500
-  warning: "#f59e0b", // amber-500
+  primary: "rgb(2, 132, 199)", // blue-600
+  success: "rgb(22, 163, 74)", // green-600
+  warning: "rgb(217, 119, 6)", // amber-600
   bg: "#f1f5f9",
 };
 
+// --- ERROR ALERT COMPONENT ---
+const ErrorAlert = ({ error, onRetry }) => (
+  <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <AlertCircle className="w-8 h-8 text-red-600" />
+      </div>
+      <h3 className="text-xl font-bold text-gray-900 mb-2">Failed to Load Dashboard</h3>
+      <p className="text-gray-600 mb-6">{error || "Something went wrong. Please try again."}</p>
+      <button
+        onClick={onRetry}
+        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all font-bold shadow-md hover:shadow-lg"
+      >
+        Try Again
+      </button>
+    </div>
+  </div>
+);
+
 const Overview = () => {
   const dispatch = useDispatch();
-  const { dashboardData, loading } = useSelector((state) => state.report);
+  const { dashboardData, loading, error } = useSelector((state) => state.report);
   const [selectedTimeRange, setSelectedTimeRange] = useState("month");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchOwnerDashboard());
+  // Fetch dashboard data with period parameter
+  const fetchData = useCallback((period = "30") => {
+    const periodMap = {
+      week: "7",
+      month: "30",
+      year: "365"
+    };
+    dispatch(fetchOwnerDashboard({ period: periodMap[period] || "30" }));
   }, [dispatch]);
 
-  if (loading) {
+  useEffect(() => {
+    fetchData(selectedTimeRange);
+  }, [fetchData, selectedTimeRange]);
+
+  // Handle refresh with debouncing
+  const handleRefresh = useCallback(() => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    fetchData(selectedTimeRange);
+    setTimeout(() => setIsRefreshing(false), 2000);
+  }, [fetchData, selectedTimeRange, isRefreshing]);
+
+  // Handle retry on error
+  const handleRetry = useCallback(() => {
+    fetchData(selectedTimeRange);
+  }, [fetchData, selectedTimeRange]);
+
+  if (loading && !dashboardData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader size="lg" text="Loading Dashboard..." />
@@ -97,52 +144,53 @@ const Overview = () => {
     );
   }
 
+  if (error && !dashboardData) {
+    return <ErrorAlert error={error} onRetry={handleRetry} />;
+  }
+
   const overview = dashboardData?.overview || {};
   const maintenance = dashboardData?.maintenance || [];
   const hostelPerformance = dashboardData?.hostelPerformance || [];
 
-  // --- UPDATED LOGIC FOR REVENUE DATA ---
-  const rawData = dashboardData?.monthlyRevenue || [];
-
-  // Process the data to ensure we always have at least 2 points for line display
+  // --- PROCESS REVENUE DATA WITHOUT HARDCODED VALUES ---
   const processRevenueData = () => {
+    const rawData = dashboardData?.monthlyRevenue || [];
+    
     if (rawData.length === 0) {
-      // Default demo data
-      return [
-        { name: 'Jan/2024', revenue: 0, advancePayments: 0 },
-        { name: 'Feb/2024', revenue: 12000, advancePayments: 2000 },
-        { name: 'Mar/2024', revenue: 27000, advancePayments: 5000 },
-        { name: 'Apr/2024', revenue: 45000, advancePayments: 9000 },
-        { name: 'May/2024', revenue: 70000, advancePayments: 14000 },
-        { name: 'Jun/2024', revenue: 98000, advancePayments: 20000 },
-      ];
+      // Return empty array instead of fake data
+      return [];
     }
 
     // Sort data chronologically
     const sortedData = [...rawData].sort((a, b) => {
-      const yearA = a._id.year;
-      const monthA = a._id.month;
-      const yearB = b._id.year;
-      const monthB = b._id.month;
+      const yearA = a._id?.year || 0;
+      const monthA = a._id?.month || 0;
+      const yearB = b._id?.year || 0;
+      const monthB = b._id?.month || 0;
       if (yearA !== yearB) return yearA - yearB;
       return monthA - monthB;
     });
 
-    // Calculate cumulative revenue
-    let cumulativeSum = 0;
+    // Format data with proper month names - NO cumulative calculation
     const processedData = sortedData.map((item) => {
-      cumulativeSum += item.revenue || 0;
+      const month = item._id?.month || 1;
+      const year = item._id?.year || new Date().getFullYear();
       return {
-        name: `${item._id.month}/${item._id.year}`,
-        revenue: cumulativeSum,
+        name: `${MONTH_NAMES[month]} ${year}`,
+        revenue: item.revenue || 0,
         advancePayments: item.advancePayments || 0,
       };
     });
 
-    // If only one data point, add a starting point at 0
+    // If only one data point, add a zero starting point for better visualization
     if (processedData.length === 1) {
+      const firstMonth = sortedData[0]._id?.month || 1;
+      const firstYear = sortedData[0]._id?.year || new Date().getFullYear();
+      const prevMonth = firstMonth > 1 ? firstMonth - 1 : 12;
+      const prevYear = firstMonth > 1 ? firstYear : firstYear - 1;
+      
       return [
-        { name: 'Start', revenue: 0, advancePayments: 0 },
+        { name: `${MONTH_NAMES[prevMonth]} ${prevYear}`, revenue: 0, advancePayments: 0 },
         processedData[0]
       ];
     }
@@ -154,7 +202,7 @@ const Overview = () => {
 
   const occupancyRate =
     overview.totalBeds > 0
-      ? Math.round((overview.occupiedBeds / overview.totalBeds) * 100)
+      ? ((overview.occupiedBeds / overview.totalBeds) * 100).toFixed(1)
       : 0;
 
   const occupancyData = [
@@ -257,11 +305,11 @@ const Overview = () => {
                 </div>
                 <div>
                   <p className="font-bold text-slate-700 text-sm">{item._id}</p>
-                  <p className="text-xs text-slate-400">ID: #123{idx}</p>
+                  <p className="text-xs text-slate-400">Status: {item._id}</p>
                 </div>
               </div>
               <span className="px-3 py-1 text-xs font-bold uppercase rounded-lg bg-orange-100 text-orange-700">
-                {item.count} Open
+                {item.count} {item.count === 1 ? 'Request' : 'Requests'}
               </span>
             </div>
           ))
@@ -289,18 +337,18 @@ const Overview = () => {
             >
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <p className="font-bold text-slate-800">{h.name}</p>
+                  <p className="font-bold text-slate-800">{h?.name || 'Unknown Hostel'}</p>
                   <p className="text-xs text-slate-500 flex items-center gap-1">
-                    <MapPin className="w-3 h-3" /> {h.occupancyRate}% Occupied
+                    <MapPin className="w-3 h-3" /> {h?.occupancyRate || 0}% Occupied
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-emerald-600">
-                    {formatPrice(h.revenue)}
+                    {formatPrice(h?.revenue || 0)}
                   </p>
                   <div className="flex items-center gap-1 text-xs text-slate-400 justify-end">
-                    <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />{" "}
-                    {h.rating || "4.5"}
+                    <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                    {h?.rating ? Number(h.rating).toFixed(1) : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -308,13 +356,16 @@ const Overview = () => {
               <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-emerald-500 rounded-full"
-                  style={{ width: `${h.occupancyRate}%` }}
+                  style={{ width: `${h?.occupancyRate || 0}%` }}
                 ></div>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-sm text-slate-500">No performance data</p>
+          <div className="text-center py-8 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+            <Building className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm text-slate-500">No performance data available</p>
+          </div>
         )}
       </div>
     </div>
@@ -336,11 +387,12 @@ const Overview = () => {
             </p>
           </div>
           <button
-            onClick={() => dispatch(fetchOwnerDashboard())}
-            className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold shadow-sm hover:shadow-md"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all font-bold shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <RefreshCw className="w-5 h-5" />
-            Refresh Data
+            <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
           </button>
         </div>
 
@@ -393,131 +445,134 @@ const Overview = () => {
             }
           >
             <div className="h-[320px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                  <defs>
-                    <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor={COLORS.primary}
-                        stopOpacity={0.3}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor={COLORS.primary}
-                        stopOpacity={0.05}
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id="advanceFill"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="5%"
-                        stopColor={COLORS.success}
-                        stopOpacity={0.2}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor={COLORS.success}
-                        stopOpacity={0.05}
-                      />
-                    </linearGradient>
-                    <filter id="glow">
-                      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                      <feMerge> 
-                        <feMergeNode in="coloredBlur"/>
-                        <feMergeNode in="SourceGraphic"/>
-                      </feMerge>
-                    </filter>
-                  </defs>
-                  <CartesianGrid
-                    strokeDasharray="2 4"
-                    vertical={false}
-                    stroke="#e2e8f0"
-                    strokeOpacity={0.6}
-                  />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#64748b", fontSize: 12 }}
-                    dy={10}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fill: "#64748b", fontSize: 12 }}
-                    tickFormatter={(v) => `₹${v / 1000}k`}
-                  />
-                  <Tooltip
-                    content={<CustomTooltip />}
-                    cursor={{ fill: "transparent" }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke={COLORS.primary}
-                    strokeWidth={4}
-                    dot={{ r: 6, fill: COLORS.primary, stroke: "#fff", strokeWidth: 3 }}
-                    activeDot={{
-                      r: 8,
-                      fill: COLORS.primary,
-                      stroke: "#fff",
-                      strokeWidth: 3,
-                      filter: "drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3))"
-                    }}
-                    fill="url(#lineFill)"
-                    name="Total Revenue"
-                    connectNulls={true}
-                    animationDuration={2000}
-                    animationEasing="ease-in-out"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="advancePayments"
-                    stroke={COLORS.success}
-                    strokeWidth={3}
-                    strokeDasharray="8 4"
-                    dot={{ r: 4, fill: COLORS.success, stroke: "#fff", strokeWidth: 2 }}
-                    activeDot={{
-                      r: 6,
-                      fill: COLORS.success,
-                      stroke: "#fff",
-                      strokeWidth: 2,
-                      filter: "drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3))"
-                    }}
-                    name="Advance Payments"
-                    connectNulls={true}
-                    animationDuration={2500}
-                    animationEasing="ease-out"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {revenueData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <defs>
+                      <linearGradient id="lineFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                          offset="5%"
+                          stopColor={COLORS.primary}
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor={COLORS.primary}
+                          stopOpacity={0.05}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id="advanceFill"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor={COLORS.success}
+                          stopOpacity={0.2}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor={COLORS.success}
+                          stopOpacity={0.05}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="2 4"
+                      vertical={false}
+                      stroke="#e2e8f0"
+                      strokeOpacity={0.6}
+                    />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: "#64748b", fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: "#64748b", fontSize: 12 }}
+                      tickFormatter={(v) => `₹${v / 1000}k`}
+                    />
+                    <Tooltip
+                      content={<CustomTooltip />}
+                      cursor={{ fill: "transparent" }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="revenue"
+                      stroke={COLORS.primary}
+                      strokeWidth={4}
+                      dot={{ r: 6, fill: COLORS.primary, stroke: "#fff", strokeWidth: 3 }}
+                      activeDot={{
+                        r: 8,
+                        fill: COLORS.primary,
+                        stroke: "#fff",
+                        strokeWidth: 3,
+                        filter: "drop-shadow(0 4px 8px rgba(59, 130, 246, 0.3))"
+                      }}
+                      fill="url(#lineFill)"
+                      name="Total Revenue"
+                      connectNulls={true}
+                      animationDuration={2000}
+                      animationEasing="ease-in-out"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="advancePayments"
+                      stroke={COLORS.success}
+                      strokeWidth={3}
+                      strokeDasharray="8 4"
+                      dot={{ r: 4, fill: COLORS.success, stroke: "#fff", strokeWidth: 2 }}
+                      activeDot={{
+                        r: 6,
+                        fill: COLORS.success,
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                        filter: "drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3))"
+                      }}
+                      name="Advance Payments"
+                      connectNulls={true}
+                      animationDuration={2500}
+                      animationEasing="ease-out"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <DollarSign className="w-12 h-12 text-slate-300 mb-3" />
+                  <p className="text-slate-500 font-medium">No revenue data available</p>
+                  <p className="text-slate-400 text-sm mt-1">Data will appear once payments are received</p>
+                </div>
+              )}
               {/* Chart Legend */}
-              <div className="flex items-center justify-center gap-6 mt-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-0.5 bg-blue-500 rounded"></div>
-                  <span className="text-xs font-medium text-slate-600">
-                    Total Revenue
-                  </span>
+              {revenueData.length > 0 && (
+                <div className="flex items-center justify-center gap-6 mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-0.5 bg-blue-500 rounded"></div>
+                    <span className="text-xs font-medium text-slate-600">
+                      Total Revenue
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-4 h-0.5 bg-green-500 rounded"
+                      style={{
+                        backgroundImage:
+                          "repeating-linear-gradient(to right, #10b981 0, #10b981 3px, transparent 3px, transparent 6px)",
+                      }}
+                    ></div>
+                    <span className="text-xs font-medium text-slate-600">
+                      Advance Payments
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-4 h-0.5 bg-green-500 rounded"
-                    style={{
-                      backgroundImage:
-                        "repeating-linear-gradient(to right, #10b981 0, #10b981 3px, transparent 3px, transparent 6px)",
-                    }}
-                  ></div>
-                  <span className="text-xs font-medium text-slate-600">
-                    Advance Payments
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
           </ChartCard>
 

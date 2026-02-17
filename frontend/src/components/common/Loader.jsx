@@ -15,6 +15,15 @@ const Loader = ({ size = "md", text = "Loading..." }) => {
     xl: "text-lg",
   };
 
+  const sizeValues = {
+    sm: 16,
+    md: 32,
+    lg: 48,
+    xl: 64,
+  };
+
+  const currentSize = sizeValues[size] || sizeValues.md;
+
   return (
     <div className="flex flex-col items-center justify-center p-8">
       <div className="relative flex items-center justify-center">
@@ -30,10 +39,10 @@ const Loader = ({ size = "md", text = "Loading..." }) => {
 
         {/* Inner Spinner - Reverse Direction */}
         <div
-          className={`absolute rounded-full border-2 border-transparent border-t-accent-500 animate-spin ${sizeClasses[size]}`}
+          className="absolute rounded-full border-2 border-transparent border-t-accent-500 animate-spin"
           style={{
-            width: `calc(${sizeClasses[size].split(" ")[0]} * 0.6)`,
-            height: `calc(${sizeClasses[size].split(" ")[1]} * 0.6)`,
+            width: `${currentSize * 0.6}px`,
+            height: `${currentSize * 0.6}px`,
             animationDirection: "reverse",
             animationDuration: "1.5s",
           }}
@@ -43,8 +52,8 @@ const Loader = ({ size = "md", text = "Loading..." }) => {
         <div
           className="rounded-full bg-gradient-to-br from-primary-500 to-primary-700 animate-pulse"
           style={{
-            width: `calc(${sizeClasses[size].split(" ")[0]} * 0.3)`,
-            height: `calc(${sizeClasses[size].split(" ")[1]} * 0.3)`,
+            width: `${currentSize * 0.3}px`,
+            height: `${currentSize * 0.3}px`,
           }}
         ></div>
       </div>

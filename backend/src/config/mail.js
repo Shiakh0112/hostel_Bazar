@@ -1,4 +1,4 @@
-const SibApiV3Sdk = require('sib-api-v3-sdk');
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
 const client = SibApiV3Sdk.ApiClient.instance;
 
@@ -6,7 +6,7 @@ if (!process.env.BREVO_API_KEY) {
   console.log("❌ BREVO_API_KEY missing in environment variables");
 }
 
-client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY;
+client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
 const emailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
@@ -28,7 +28,7 @@ module.exports = {
     } catch (error) {
       console.error(
         "❌ Brevo Email Error:",
-        error.response?.body || error.message
+        error.response?.body || error.message,
       );
       throw error;
     }

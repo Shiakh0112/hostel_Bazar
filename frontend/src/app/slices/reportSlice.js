@@ -4,10 +4,10 @@ import reportService from '../../services/report.service';
 // Async thunks
 export const fetchOwnerDashboard = createAsyncThunk(
   'report/fetchOwnerDashboard',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       const response = await reportService.getOwnerDashboard(params);
-      return response.data.data;
+      return response.data?.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch dashboard data');
     }
@@ -16,10 +16,10 @@ export const fetchOwnerDashboard = createAsyncThunk(
 
 export const fetchRevenueReport = createAsyncThunk(
   'report/fetchRevenueReport',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       const response = await reportService.getRevenueReport(params);
-      return response.data.data;
+      return response.data?.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch revenue report');
     }
@@ -28,10 +28,10 @@ export const fetchRevenueReport = createAsyncThunk(
 
 export const fetchOccupancyReport = createAsyncThunk(
   'report/fetchOccupancyReport',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       const response = await reportService.getOccupancyReport(params);
-      return response.data.data;
+      return response.data?.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch occupancy report');
     }
@@ -40,10 +40,10 @@ export const fetchOccupancyReport = createAsyncThunk(
 
 export const fetchMaintenanceReport = createAsyncThunk(
   'report/fetchMaintenanceReport',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       const response = await reportService.getMaintenanceReport(params);
-      return response.data.data;
+      return response.data?.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch maintenance report');
     }
@@ -52,10 +52,10 @@ export const fetchMaintenanceReport = createAsyncThunk(
 
 export const fetchStudentReport = createAsyncThunk(
   'report/fetchStudentReport',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       const response = await reportService.getStudentReport(params);
-      return response.data.data;
+      return response.data?.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch student report');
     }
@@ -64,10 +64,10 @@ export const fetchStudentReport = createAsyncThunk(
 
 export const exportReport = createAsyncThunk(
   'report/exportReport',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
       const response = await reportService.exportReport(params);
-      return response.data.data;
+      return response.data?.data || response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to export report');
     }
@@ -100,7 +100,9 @@ const reportSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
-    }
+    },
+    // Clear all report data on logout
+    resetReportState: () => initialState
   },
   extraReducers: (builder) => {
     builder
@@ -112,6 +114,7 @@ const reportSlice = createSlice({
       .addCase(fetchOwnerDashboard.fulfilled, (state, action) => {
         state.loading = false;
         state.dashboardData = action.payload;
+        state.error = null;
       })
       .addCase(fetchOwnerDashboard.rejected, (state, action) => {
         state.loading = false;
@@ -126,6 +129,7 @@ const reportSlice = createSlice({
       .addCase(fetchRevenueReport.fulfilled, (state, action) => {
         state.loading = false;
         state.revenueReport = action.payload;
+        state.error = null;
       })
       .addCase(fetchRevenueReport.rejected, (state, action) => {
         state.loading = false;
@@ -140,6 +144,7 @@ const reportSlice = createSlice({
       .addCase(fetchOccupancyReport.fulfilled, (state, action) => {
         state.loading = false;
         state.occupancyReport = action.payload;
+        state.error = null;
       })
       .addCase(fetchOccupancyReport.rejected, (state, action) => {
         state.loading = false;
@@ -154,6 +159,7 @@ const reportSlice = createSlice({
       .addCase(fetchMaintenanceReport.fulfilled, (state, action) => {
         state.loading = false;
         state.maintenanceReport = action.payload;
+        state.error = null;
       })
       .addCase(fetchMaintenanceReport.rejected, (state, action) => {
         state.loading = false;
@@ -168,6 +174,7 @@ const reportSlice = createSlice({
       .addCase(fetchStudentReport.fulfilled, (state, action) => {
         state.loading = false;
         state.studentReport = action.payload;
+        state.error = null;
       })
       .addCase(fetchStudentReport.rejected, (state, action) => {
         state.loading = false;
@@ -182,6 +189,7 @@ const reportSlice = createSlice({
       .addCase(exportReport.fulfilled, (state, action) => {
         state.loading = false;
         state.exportData = action.payload;
+        state.error = null;
       })
       .addCase(exportReport.rejected, (state, action) => {
         state.loading = false;
@@ -190,5 +198,5 @@ const reportSlice = createSlice({
   }
 });
 
-export const { clearReports, clearError } = reportSlice.actions;
+export const { clearReports, clearError, resetReportState } = reportSlice.actions;
 export default reportSlice.reducer;

@@ -1,7 +1,7 @@
-const app = require('./app');
-const connectDB = require('./config/db');
-const CronJobService = require('./services/cron.service');
-require('dotenv').config();
+require("dotenv").config();
+const app = require("./app");
+const connectDB = require("./config/db");
+const CronJobService = require("./services/cron.service");
 
 const PORT = process.env.PORT || 5000;
 
