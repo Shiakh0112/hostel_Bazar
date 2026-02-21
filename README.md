@@ -395,6 +395,8 @@ For Gmail direct (alternative):
 
 ### **Base URL**
 ```
+
+Test: https://hostel-bazar.onrender.com/api/test
 Production: https://hostel-bazar.onrender.com/api
 Local: http://localhost:5000/api
 ```
