@@ -11,6 +11,7 @@ import staffService from "../../../services/staff.service";
 import { formatDate } from "../../../utils/formatDate";
 import Modal from "../../common/Modal";
 import Loader from "../../common/Loader";
+import StaffForm from "./StaffForm";
 import {
   Users,
   Plus,
@@ -47,12 +48,15 @@ const Staff = () => {
   } = useSelector((state) => state.staff);
   const { ownerHostels = [] } = useSelector((state) => state.hostel);
 
+  const [showDetailedForm, setShowDetailedForm] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const [staffFormData, setStaffFormData] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -146,7 +150,7 @@ const Staff = () => {
             </div>
 
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => setShowDetailedForm(true)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 font-medium transition-all shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 hover:-translate-y-0.5"
             >
               <Plus size={18} />
@@ -302,7 +306,206 @@ const Staff = () => {
           )}
         </div>
 
-        {/* --- MODALS (same as your existing code) --- */}
+        {/* --- MODALS --- */}
+        {/* DETAILED STAFF FORM */}
+        {showDetailedForm && (
+          <Modal
+            isOpen={showDetailedForm}
+            onClose={() => {
+              setShowDetailedForm(false);
+              setStaffFormData(null);
+            }}
+            title="Staff Registration Form - Complete Details"
+          >
+            <StaffForm
+              onSubmit={(data) => {
+                setStaffFormData(data);
+                setFormData({
+                  name: data.name,
+                  email: data.email,
+                  mobile: data.mobile,
+                  hostelId: "",
+                  permissions: [],
+                });
+                setShowDetailedForm(false);
+                setShowCreateModal(true);
+              }}
+              onCancel={() => {
+                setShowDetailedForm(false);
+                setStaffFormData(null);
+              }}
+            />
+          </Modal>
+        )}
+
+        {/* CREATE MODAL */}
+        {showCreateModal && (
+          <Modal
+            isOpen={showCreateModal}
+            onClose={() => {
+              setShowCreateModal(false);
+              setFormData({ name: "", email: "", mobile: "", hostelId: "", permissions: [] });
+            }}
+            title="Add New Staff Member"
+          >
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!formData.name || !formData.email || !formData.mobile || !formData.hostelId) {
+                  alert("Please fill all required fields");
+                  return;
+                }
+                await dispatch(createStaff(formData));
+                setShowCreateModal(false);
+                setFormData({ name: "", email: "", mobile: "", hostelId: "", permissions: [] });
+                dispatch(fetchOwnerStaff());
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Name *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Mobile *</label>
+                <input
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Hostel *</label>
+                <select
+                  value={formData.hostelId}
+                  onChange={(e) => setFormData({ ...formData, hostelId: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  required
+                >
+                  <option value="">Select Hostel</option>
+                  {ownerHostels.map((h) => (
+                    <option key={h._id} value={h._id}>
+                      {h.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 font-medium transition-all"
+                >
+                  Create Staff
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setFormData({ name: "", email: "", mobile: "", hostelId: "", permissions: [] });
+                  }}
+                  className="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-medium transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
+
+        {/* EDIT MODAL */}
+        {showEditModal && editingStaff && (
+          <Modal
+            isOpen={showEditModal}
+            onClose={() => {
+              setShowEditModal(false);
+              setEditingStaff(null);
+              setFormData({ name: "", email: "", mobile: "", hostelId: "", permissions: [] });
+            }}
+            title="Edit Staff Member"
+          >
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                await dispatch(updateStaff({ staffId: editingStaff._id, updateData: formData }));
+                setShowEditModal(false);
+                setEditingStaff(null);
+                setFormData({ name: "", email: "", mobile: "", hostelId: "", permissions: [] });
+                dispatch(fetchOwnerStaff());
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Hostel</label>
+                <select
+                  value={formData.hostelId}
+                  onChange={(e) => setFormData({ ...formData, hostelId: e.target.value })}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">Select Hostel</option>
+                  {ownerHostels.map((h) => (
+                    <option key={h._id} value={h._id}>
+                      {h.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                <select
+                  value={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'true' })}
+                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 font-medium transition-all"
+                >
+                  Update Staff
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingStaff(null);
+                    setFormData({ name: "", email: "", mobile: "", hostelId: "", permissions: [] });
+                  }}
+                  className="px-6 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-medium transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )}
       </div>
     </div>
   );

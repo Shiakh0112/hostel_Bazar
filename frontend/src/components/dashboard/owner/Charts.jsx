@@ -11,6 +11,7 @@ import {
   ArcElement,
   PointElement,
   LineElement,
+  Filler,
 } from "chart.js";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import {
@@ -29,6 +30,7 @@ ChartJS.register(
   ArcElement,
   PointElement,
   LineElement,
+  Filler
 );
 
 const Charts = () => {
@@ -119,13 +121,15 @@ const Charts = () => {
 
   // Occupancy Rate Chart Data
   const occupancyChartData = {
-    labels: occupancyReport?.map((hostel) => hostel.hostelName) || [],
+    labels: Array.isArray(occupancyReport) && occupancyReport.length > 0
+      ? occupancyReport.map((hostel) => hostel.hostelName)
+      : ["No Data"],
     datasets: [
       {
         label: "Occupancy Rate (%)",
-        data:
-          occupancyReport?.map((hostel) => parseFloat(hostel.occupancyRate)) ||
-          [],
+        data: Array.isArray(occupancyReport) && occupancyReport.length > 0
+          ? occupancyReport.map((hostel) => parseFloat(hostel.occupancyRate))
+          : [0],
         backgroundColor: [
           "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
@@ -147,12 +151,15 @@ const Charts = () => {
 
   // Expense Categories Pie Chart
   const expenseChartData = {
-    labels: maintenanceReport?.categoryWise?.map((cat) => cat._id) || [],
+    labels: maintenanceReport?.categoryWise?.length > 0
+      ? maintenanceReport.categoryWise.map((cat) => cat._id)
+      : ["No Data"],
     datasets: [
       {
         label: "Maintenance Cost by Category",
-        data:
-          maintenanceReport?.categoryWise?.map((cat) => cat.totalCost) || [],
+        data: maintenanceReport?.categoryWise?.length > 0
+          ? maintenanceReport.categoryWise.map((cat) => cat.totalCost)
+          : [0],
         backgroundColor: [
           "rgba(255, 99, 132, 0.6)",
           "rgba(54, 162, 235, 0.6)",
@@ -176,26 +183,28 @@ const Charts = () => {
 
   // Monthly Comparison Chart
   const monthlyComparisonData = {
-    labels:
-      maintenanceReport?.monthlyTrend?.map(
-        (item) => `${item._id.month}/${item._id.year}`,
-      ) || [],
+    labels: maintenanceReport?.monthlyTrend?.length > 0
+      ? maintenanceReport.monthlyTrend.map(
+          (item) => `${item._id.month}/${item._id.year}`,
+        )
+      : ["No Data"],
     datasets: [
       {
         label: "Maintenance Requests",
-        data:
-          maintenanceReport?.monthlyTrend?.map((item) => item.totalRequests) ||
-          [],
+        data: maintenanceReport?.monthlyTrend?.length > 0
+          ? maintenanceReport.monthlyTrend.map((item) => item.totalRequests)
+          : [0],
         backgroundColor: "rgba(255, 99, 132, 0.6)",
         borderColor: "rgba(255, 99, 132, 1)",
         tension: 0.1,
       },
       {
         label: "Completed Requests",
-        data:
-          maintenanceReport?.monthlyTrend?.map(
-            (item) => item.completedRequests,
-          ) || [],
+        data: maintenanceReport?.monthlyTrend?.length > 0
+          ? maintenanceReport.monthlyTrend.map(
+              (item) => item.completedRequests,
+            )
+          : [0],
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
         tension: 0.1,
@@ -205,6 +214,7 @@ const Charts = () => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "top",
@@ -223,6 +233,7 @@ const Charts = () => {
 
   const pieOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: "right",
@@ -234,13 +245,7 @@ const Charts = () => {
     },
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  // Remove loading check - let charts render with default data
 
   return (
     <div className="space-y-6">
@@ -326,7 +331,13 @@ const Charts = () => {
               Occupancy Rate by Hostel
             </h3>
             <div className="h-96">
-              <Bar data={occupancyChartData} options={chartOptions} />
+              <Bar 
+                data={occupancyChartData} 
+                options={{
+                  ...chartOptions,
+                  maintainAspectRatio: false
+                }} 
+              />
             </div>
           </div>
         )}
@@ -336,8 +347,16 @@ const Charts = () => {
             <h3 className="text-lg font-semibold mb-4">
               Maintenance Expenses by Category
             </h3>
-            <div className="h-96 flex justify-center">
-              <Pie data={expenseChartData} options={pieOptions} />
+            <div className="h-96 flex justify-center items-center">
+              <div className="w-full h-full">
+                <Pie 
+                  data={expenseChartData} 
+                  options={{
+                    ...pieOptions,
+                    maintainAspectRatio: false
+                  }} 
+                />
+              </div>
             </div>
           </div>
         )}
@@ -348,7 +367,13 @@ const Charts = () => {
               Monthly Maintenance Trends
             </h3>
             <div className="h-96">
-              <Line data={monthlyComparisonData} options={chartOptions} />
+              <Line 
+                data={monthlyComparisonData} 
+                options={{
+                  ...chartOptions,
+                  maintainAspectRatio: false
+                }} 
+              />
             </div>
           </div>
         )}
@@ -368,10 +393,12 @@ const Charts = () => {
 
         <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
           <div className="text-2xl font-bold">
-            {occupancyReport?.reduce(
-              (sum, hostel) => sum + hostel.occupiedBeds,
-              0,
-            ) || 0}
+            {Array.isArray(occupancyReport)
+              ? occupancyReport.reduce(
+                  (sum, hostel) => sum + (hostel.occupiedBeds || 0),
+                  0,
+                )
+              : 0}
           </div>
           <div className="text-sm opacity-90">Occupied Beds</div>
         </div>

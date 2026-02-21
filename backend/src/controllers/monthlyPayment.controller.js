@@ -21,12 +21,21 @@ const generateMonthlyRents = asyncHandler(async (req, res) => {
     return res.status(404).json(new ApiResponse(404, null, 'No active booking found'));
   }
 
-  // Delete ALL existing monthly payments for this student to start fresh
+  // Delete ONLY pending monthly payments (keep completed ones)
   await Payment.deleteMany({
     student: studentId,
     booking: booking._id,
-    paymentType: 'monthly'
+    paymentType: 'monthly',
+    status: 'pending'
   });
+
+  // Get existing completed payments to avoid duplicates
+  const existingPayments = await Payment.find({
+    student: studentId,
+    booking: booking._id,
+    paymentType: 'monthly',
+    status: 'completed'
+  }).select('month year');
 
   const checkInDate = moment(booking.actualCheckIn || booking.bookingDetails.checkInDate);
   const checkOutDate = moment(booking.bookingDetails.expectedCheckOutDate);
@@ -39,22 +48,29 @@ const generateMonthlyRents = asyncHandler(async (req, res) => {
   const payments = [];
   let currentDate = checkInDate.clone();
 
-  // Generate payment for check-in month
-  payments.push(await Payment.create({
-    student: studentId,
-    hostel: booking.hostel._id,
-    booking: booking._id,
-    paymentType: 'monthly',
-    amount: baseMonthlyAmount,
-    baseRent: monthlyRent,
-    electricityCharges: electricityCharges,
-    maintenanceCharges: 0, // Will be updated when maintenance is completed
-    month: currentDate.format('MMMM'),
-    year: currentDate.year(),
-    dueDate: currentDate.toDate(),
-    status: 'pending',
-    description: `Monthly rent for ${currentDate.format('MMMM YYYY')}`
-  }));
+  // Helper function to check if payment already exists for a month
+  const paymentExists = (month, year) => {
+    return existingPayments.some(p => p.month === month && p.year === year);
+  };
+
+  // Generate payment for check-in month (only if not already paid)
+  if (!paymentExists(currentDate.format('MMMM'), currentDate.year())) {
+    payments.push(await Payment.create({
+      student: studentId,
+      hostel: booking.hostel._id,
+      booking: booking._id,
+      paymentType: 'monthly',
+      amount: baseMonthlyAmount,
+      baseRent: monthlyRent,
+      electricityCharges: electricityCharges,
+      maintenanceCharges: 0, // Will be updated when maintenance is completed
+      month: currentDate.format('MMMM'),
+      year: currentDate.year(),
+      dueDate: currentDate.toDate(),
+      status: 'pending',
+      description: `Monthly rent for ${currentDate.format('MMMM YYYY')}`
+    }));
+  }
 
   // Generate payments for subsequent months
   currentDate.add(1, 'month');
@@ -70,6 +86,12 @@ const generateMonthlyRents = asyncHandler(async (req, res) => {
     // Stop if due date exceeds checkout
     if (dueDate.isAfter(checkOutDate, 'day')) {
       break;
+    }
+
+    // Skip if payment already exists for this month (already paid)
+    if (paymentExists(dueDate.format('MMMM'), dueDate.year())) {
+      currentDate.add(1, 'month');
+      continue;
     }
 
     payments.push(await Payment.create({
